@@ -21,6 +21,7 @@
     <maven.compiler.release>25</maven.compiler.release>
     <javafx.version>26.0.2</javafx.version>
     <javacv.version>1.5.13</javacv.version>
+    <junit.version>5.11.0</junit.version>
   </properties>
 
   <dependencies>
@@ -33,6 +34,14 @@
       <groupId>org.bytedeco</groupId>
       <artifactId>javacv-platform</artifactId>
       <version>${javacv.version}</version>
+    </dependency>
+    
+    <!-- JUnit for regression testing -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -49,6 +58,13 @@
                 <option>--enable-native-access=ALL-UNNAMED</option>
             </options>
         </configuration>
+      </plugin>
+      
+      <!-- Maven Surefire plugin for running tests during 'mvn verify' -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.5.2</version>
       </plugin>
     </plugins>
   </build>
