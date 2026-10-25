@@ -91,6 +91,7 @@ public class VideoPlayerModel {
 
     public VideoPlayerModel(
             boolean audioEnabled,
+            List<String> frameProcessorNames,
             BiConsumer<Integer, Integer> videoSizeChangedHandler,
             Consumer<Image> frameReadyHandler,
             Consumer<String> statusChangedHandler,
@@ -102,17 +103,9 @@ public class VideoPlayerModel {
         this.statusChangedHandler = statusChangedHandler;
         this.playbackStateChangedHandler = playbackStateChangedHandler;
         this.audioOutputStateChangedHandler = audioOutputStateChangedHandler;
-        this.frameProcessors = new ArrayList<>();
-//        frameProcessors.add(new FrameBleeder());
-//        frameProcessors.add(new FrameScratcher());
-//        frameProcessors.add(new FrameDuster());
-//        frameProcessors.add(new FramePepperer());
-//        frameProcessors.add(new FrameBlackAndWhiter());
-//        frameProcessors.add(new FrameYellower());
-//        frameProcessors.add(new FrameVignetter());
-//        frameProcessors.add(new FrameFlickerer());
-//        frameProcessors.add(new FrameJitterer());
-//        frameProcessors.add(new FrameNumberer());
+        
+        // Dynamically construct the frame processors based on the command-line arguments
+        this.frameProcessors = createFrameProcessors(frameProcessorNames);
     }
 
     public void play(File file) {
@@ -639,5 +632,31 @@ public class VideoPlayerModel {
         boolean finished() {
             return offset >= samples.length;
         }
+    }
+    
+    // Factory method for FrameProcessors
+    // Adding new effect: 
+    // 1. Implement FrameProcessor subclass
+    // 2. Add case mapping a string name to the new class
+    // 3. Ensure CommandLineController parser maps CLI flag to this string name
+    private static List<FrameProcessor> createFrameProcessors(List<String> effectNames) {
+        List<FrameProcessor> processors = new ArrayList<>();
+        for (String name : effectNames) {
+            switch (name) {
+                case "number" -> processors.add(new FrameNumberer());
+                case "scratch" -> processors.add(new FrameScratcher());
+                case "flicker" -> processors.add(new FrameFlickerer());
+                case "blackandwhite" -> processors.add(new FrameBlackAndWhiter());
+                case "yellow" -> processors.add(new FrameYellower());
+                case "vignette" -> processors.add(new FrameVignetter());
+                case "dust" -> processors.add(new FrameDuster());
+                case "jitter" -> processors.add(new FrameJitterer());
+                case "mottle" -> processors.add(new FrameMottler());
+                case "bleed" -> processors.add(new FrameBleeder());
+                case "pepper" -> processors.add(new FramePepperer());
+                default -> System.err.println("Warning: Unknown frame processor ignored: " + name);
+            }
+        }
+        return processors;
     }
 }

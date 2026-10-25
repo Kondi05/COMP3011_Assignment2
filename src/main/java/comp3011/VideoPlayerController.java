@@ -33,11 +33,13 @@ public class VideoPlayerController {
 
     public VideoPlayerController(
             boolean audioEnabled,
+            java.util.List<String> frameProcessorNames,
             BiConsumer<Integer, Integer> videoSizeChangedHandler) {
         this.view = new VideoPlayerView();
         this.videoSizeChangedHandler = videoSizeChangedHandler;
         model = new VideoPlayerModel(
                 audioEnabled,
+                frameProcessorNames,
                 this::onVideoSizeChanged,
                 this::onFrameReady,
                 this::onStatusChanged,
