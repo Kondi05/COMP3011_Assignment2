@@ -32,6 +32,7 @@ public class CommandLineController {
     private Integer displayId;
     private File videoFile;
     private String errorMessage;
+    private final List<String> requestedFrameProcessors = new ArrayList<>();
 
     public CommandLineController(String[] args) {
         this.args = args.clone();
@@ -42,6 +43,10 @@ public class CommandLineController {
         if (helpRequested) {
             printHelp();
         }
+    }
+    
+    public List<String> getRequestedFrameProcessors() {
+        return requestedFrameProcessors;
     }
 
     public File getVideoFile() {
@@ -74,7 +79,9 @@ public class CommandLineController {
 
     private void parse() {
         List<String> videoFiles = new ArrayList<>();
+        
         for (String arg : args) {
+            // 1. Handle existing core options (exact match)
             if ("-h".equals(arg) || "--help".equals(arg)) {
                 helpRequested = true;
             } else if ("-a".equals(arg) || "--audio".equals(arg)) {
@@ -85,13 +92,43 @@ public class CommandLineController {
                 setDisplayId(1);
             } else if ("-2".equals(arg) || "--monitor-2".equals(arg)) {
                 setDisplayId(2);
-            } else if (arg.startsWith("-")) {
-                errorMessage = "Unknown option: " + arg;
-            } else {
+            } 
+            // 2. Handle long frame processor options (start with --)
+            else if (arg.startsWith("--") && isFrameProcessorLongFlag(arg)) {
+                requestedFrameProcessors.add(mapLongFlagToName(arg));
+            } 
+            // 3. Handle stacked/single short frame processor options (start with -)
+            else if (arg.startsWith("-") && !arg.startsWith("--") && arg.length() > 1) {
+                // treat it as a stack if ALL characters are valid frame processor flags
+                // If contains an unknown character (for example -z), treat it as an unknown option
+                boolean isAllValid = true;
+                for (char c : arg.substring(1).toCharArray()) {
+                    if (!isFrameProcessorShortFlag(c)) {
+                        isAllValid = false;
+                        break;
+                    }
+                }
+                
+                if (isAllValid) {
+                    // Add each character to the list in order (for example -nsf -> number, scratch, flicker)
+                    for (char c : arg.substring(1).toCharArray()) {
+                        requestedFrameProcessors.add(mapShortFlagToName(c));
+                    }
+                } else {
+                    errorMessage = "Unknown option: " + arg;
+                }
+            } 
+            // 4. Handle video file (anything that does not start with -)
+            else if (!arg.startsWith("-")) {
                 videoFiles.add(arg);
+            } 
+            // 5. Catch any other unrecognized options
+            else {
+                errorMessage = "Unknown option: " + arg;
             }
         }
 
+        // Final validation 
         if (videoFiles.size() > 1) {
             errorMessage = "Usage: VideoPlayer [options] [video-file]";
         } else if (videoFiles.size() == 1) {
@@ -130,7 +167,7 @@ public class CommandLineController {
         System.out.println("  -s, --scratch-frames   Render vertical film scratches");
         System.out.println("  -f, --flicker-frames   Randomly dim frames");
         System.out.println("  -w, --black-and-white  Convert frames to black and white");
-        System.out.println("  -y, --yellow-frames    Apply warmer colour temperature");
+        System.out.println("  -y, --yellow-frames    Apply a warmer colour temperature");
         System.out.println("  -v, --vignette-frames  Darken the frame edges");
         System.out.println("  -d, --dust-frames      Render dust and hair marks");
         System.out.println("  -j, --jitter-frames    Randomly displace frames by a few pixels");
@@ -140,5 +177,61 @@ public class CommandLineController {
         System.out.println("Frame processors are applied in command-line order and may be repeated.");
         System.out.println("Example: -nssnfwyvdjmbp numbers, scratches twice, numbers again, flickers,");
         System.out.println("converts, warms, vignettes, dusts, jitters, mottles, bleeds, then peppers.");
+    }
+    
+    // Frame Processor Parsing Helpers ->
+    // For adding a new frame processor:
+    // 1. Add long flag check in isFrameProcessorLongFlag()
+    // 2. Add long flag mapping in mapLongFlagToName()
+    // 3. Add short flag check in isFrameProcessorShortFlag()
+    // 4. Add short flag mapping in mapShortFlagToName()
+    // 5. Implement processor in VideoPlayerModel
+
+    private boolean isFrameProcessorLongFlag(String arg) {
+        return switch (arg) {
+            case "--number-frames", "--scratch-frames", "--flicker-frames",
+                 "--black-and-white", "--yellow-frames", "--vignette-frames",
+                 "--dust-frames", "--jitter-frames", "--mottle-frames",
+                 "--bleed-frames", "--pepper-frames" -> true;
+            default -> false;
+        };
+    }
+
+    private String mapLongFlagToName(String arg) {
+        return switch (arg) {
+            case "--number-frames" -> "number";
+            case "--scratch-frames" -> "scratch";
+            case "--flicker-frames" -> "flicker";
+            case "--black-and-white" -> "blackandwhite";
+            case "--yellow-frames" -> "yellow";
+            case "--vignette-frames" -> "vignette";
+            case "--dust-frames" -> "dust";
+            case "--jitter-frames" -> "jitter";
+            case "--mottle-frames" -> "mottle";
+            case "--bleed-frames" -> "bleed";
+            case "--pepper-frames" -> "pepper";
+            default -> throw new IllegalArgumentException("Unknown long flag: " + arg);
+        };
+    }
+
+    private boolean isFrameProcessorShortFlag(char c) {
+        return "nsfwyvdjmbp".indexOf(c) != -1;
+    }
+
+    private String mapShortFlagToName(char c) {
+        return switch (c) {
+            case 'n' -> "number";
+            case 's' -> "scratch";
+            case 'f' -> "flicker";
+            case 'w' -> "blackandwhite";
+            case 'y' -> "yellow";
+            case 'v' -> "vignette";
+            case 'd' -> "dust";
+            case 'j' -> "jitter";
+            case 'm' -> "mottle";
+            case 'b' -> "bleed";
+            case 'p' -> "pepper";
+            default -> throw new IllegalArgumentException("Unknown short flag: " + c);
+        };
     }
 }
