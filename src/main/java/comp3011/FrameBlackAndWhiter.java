@@ -4,7 +4,7 @@
  * 
  * Authors:
  *   1. Simon Ratcliffe, in collaboration with GPT-5.6 Terra
- *   2. <student name and student number insert here upon modification>
+ *   2. Kondinya Bung Chakma and a1960283 insert here upon modification>
  *
  * Copyright 2026 Simon Ratcliffe
  */
@@ -49,6 +49,8 @@ public class FrameBlackAndWhiter extends FrameProcessor {
 
         convertFrame(pixels);
     }
+    
+    
 
     private void convertFrame(ByteBuffer pixels) {
         int height = videoInfo.imageHeight();

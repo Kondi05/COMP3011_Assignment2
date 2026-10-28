@@ -4,7 +4,7 @@
  * 
  * Authors:
  *   1. Simon Ratcliffe, in collaboration with GPT-5.6 Terra
- *   2. <student name and student number insert here upon modification>
+ *   2. Kondinya Bung Chakma and a1960283 insert here upon modification>
  *
  * Copyright 2026 Simon Ratcliffe
  */
@@ -62,6 +62,8 @@ public class FrameYellower extends FrameProcessor {
 
         yellowFrame(pixels);
     }
+    
+    
 
     private void buildLookups() {
         // Approximate each colour temperature as the RGB colour of a black-body radiator.

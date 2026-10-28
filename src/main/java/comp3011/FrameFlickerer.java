@@ -4,7 +4,7 @@
  * 
  * Authors:
  *   1. Simon Ratcliffe, in collaboration with GPT-5.6 Terra
- *   2. <student name and student number insert here upon modification>
+ *   2. Kondinya Bung Chakma insert here upon modification>
  *
  * Copyright 2026 Simon Ratcliffe
  */
@@ -30,12 +30,22 @@ public class FrameFlickerer extends FrameProcessor {
 
     private static int nextInstanceIndex;
 
-    private final int instanceIndex;
+    private int instanceIndex;
     private int mediaSeed;
 
     public FrameFlickerer() {
         super();
         instanceIndex = nextInstanceIndex++;
+    }
+    
+    @Override
+    public int getInstanceIndex() {
+        return instanceIndex;
+    }
+
+    @Override
+    public void setInstanceIndex(int index) {
+        this.instanceIndex = index;
     }
 
     @Override
@@ -68,6 +78,8 @@ public class FrameFlickerer extends FrameProcessor {
 
         dimFrame(pixels, brightnessScale);
     }
+    
+    
 
     private void dimFrame(ByteBuffer pixels, double brightnessScale) {
         byte[] dimLookup = new byte[256];

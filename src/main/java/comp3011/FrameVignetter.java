@@ -4,7 +4,7 @@
  * 
  * Authors:
  *   1. Simon Ratcliffe, in collaboration with GPT-5.6 Terra
- *   2. <student name and student number insert here upon modification>
+ *   2. Kondinya Bung Chakma and a1960283 insert here upon modification>
  *
  * Copyright 2026 Simon Ratcliffe
  */
@@ -60,6 +60,8 @@ public class FrameVignetter extends FrameProcessor {
 
         vignetteFrame(pixels);
     }
+    
+    
 
     private void buildLookups() {
         xLookups = buildAxisLookups(videoInfo.imageWidth());

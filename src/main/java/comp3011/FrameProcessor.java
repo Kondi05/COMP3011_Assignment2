@@ -4,7 +4,7 @@
  * 
  * Authors:
  *   1. Simon Ratcliffe, in collaboration with GPT-5.6 Terra
- *   2. <student name and student number insert here upon modification>
+ *   2. Kondinya Bung Chakma and a1960283
  *
  * Copyright 2026 Simon Ratcliffe
  */
@@ -17,17 +17,6 @@ import org.bytedeco.javacv.Frame;
 
 /**
  * Base class for all the video player's frame-based compositing effects.
- *
- * <p>
- * {@link VideoPlayerModel} initialises each processor once with video metadata,
- * then invokes {@link #process(Frame, InfoFrame)} for every image frame in a set order
- * before it is converted for display. Note that all FrameProcessors should be written
- * to be deterministic - that is they apply the same effect to the same frame number of
- * the same media name, but otherwise can look 'random'. This allows for the reliable
- * determination of accurately applied effects in the correct order free of any race
- * conditions, frame overwrites or frame tearing etc. Some helper methods are provided
- * for this.
- * </p>
  */
 public abstract class FrameProcessor {
     protected InfoVideo videoInfo;
@@ -39,10 +28,20 @@ public abstract class FrameProcessor {
         this.videoInfo = videoInfo;
     }
 
-    // Obtain a unique seed for this media name and effect instance index. That is, for a given media name, say
-    // 'movie.mp4' and a given position in the list of effects being applied, this will return a unique and different
-    // seed for each effect. This is useful for creating the illusion of randomness whilst keeping everything
-    // deterministic.
+    public InfoVideo getVideoInfo() {
+        return videoInfo;
+    }
+
+    /** Returns this processor's deterministic instance index, or -1 if unused. */
+    public int getInstanceIndex() {
+        return -1;
+    }
+
+    /** Restores a previously recorded instance index. */
+    public void setInstanceIndex(int index) {
+        // no-op for processors that do not use an instance index
+    }
+
     protected int saltedMediaSeed(String mediaName, int instanceIndex) {
         return hashMediaName(mediaName) + instanceIndex;
     }
